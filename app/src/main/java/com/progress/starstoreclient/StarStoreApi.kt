@@ -8,7 +8,7 @@ import retrofit2.http.Path
 
 interface StarStoreApi {
     data class Model(
-        val id: Long,
+        val id: Long = 0L,
         val name: String = "",
         val price: Long = 0L,
         val image: String? = null,
@@ -24,6 +24,7 @@ interface StarStoreApi {
 
     companion object {
         private const val URL = "http://192.168.100.2:8080/"
+        const val IMAGES = URL + "images/"
 
         fun getApi(): StarStoreApi = Retrofit.Builder()
             .baseUrl(URL)
