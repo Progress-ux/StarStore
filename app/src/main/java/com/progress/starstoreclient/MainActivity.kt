@@ -20,20 +20,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             StarStoreClientTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
+                    Main(
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
             }
         }
     }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
 }
