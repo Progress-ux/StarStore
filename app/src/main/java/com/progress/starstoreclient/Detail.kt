@@ -34,7 +34,6 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun Detail(
-    modifier: Modifier,
     id: Long
 ) {
     val api: StarStoreApi by lazy { StarStoreApi.getApi() }
@@ -58,7 +57,7 @@ fun Detail(
     val droid by animateFloatAsState(targetValue = lang, label = "droid")
     val human by animateFloatAsState(targetValue = 1 - lang, label = "human")
 
-    Column(modifier.padding(8.dp)) {
+    Column(Modifier.padding(8.dp)) {
         // Model image
         AsyncImage(
             StarStoreApi.IMAGES + model.image,
