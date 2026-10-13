@@ -55,6 +55,13 @@ class MainActivity : ComponentActivity() {
                         ) {
                             Detail(id)
                         }
+                        AnimatedVisibility(
+                            StarStoreApi.user == "",
+                            enter = fadeIn(),
+                            exit = fadeOut()
+                        ) {
+                            Login()
+                        }
                     }
                 }
             }

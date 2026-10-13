@@ -1,9 +1,15 @@
 package com.progress.starstoreclient
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
+import retrofit2.http.Field
+import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface StarStoreApi {
@@ -22,9 +28,19 @@ interface StarStoreApi {
     @GET("model/{id}")
     suspend fun model(@Path("id") id: Long): Model
 
+    @FormUrlEncoded
+    @POST("login")
+    suspend fun login(
+        @Field("name") name: String,
+        @Field("pass") pass: String
+    )
+
     companion object {
         private const val URL = "http://192.168.100.2:8080/"
         const val IMAGES = URL + "images/"
+
+        var user by mutableStateOf("")
+        var pass by mutableStateOf("")
 
         fun getApi(): StarStoreApi = Retrofit.Builder()
             .baseUrl(URL)
