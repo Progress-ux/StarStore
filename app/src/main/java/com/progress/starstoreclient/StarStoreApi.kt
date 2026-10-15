@@ -35,8 +35,11 @@ interface StarStoreApi {
         @Field("pass") pass: String
     )
 
+    @GET("money/{name}")
+    suspend fun money(@Path("name") name: String = user): Long
+
     companion object {
-        private const val URL = "http://192.168.100.2:8080/"
+        private const val URL = "http://192.168.0.185:8080/"
         const val IMAGES = URL + "images/"
 
         var user by mutableStateOf("")

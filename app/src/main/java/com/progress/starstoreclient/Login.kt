@@ -33,7 +33,9 @@ import retrofit2.HttpException
 import java.io.IOException
 
 @Composable
-fun Login() = Dialog({}) {
+fun Login(
+    save: () -> Unit
+) = Dialog({}) {
     val api: StarStoreApi by lazy { StarStoreApi.getApi() }
     var edit by remember { mutableStateOf("") }
 
@@ -81,10 +83,17 @@ fun Login() = Dialog({}) {
                 }
                 else scope.launch {
                     try {
-                        api.login(name, edit)
+                        val loginName = name.trim()
+                        val loginPass = edit.trim()
+
+                        api.login(loginName, loginPass)
+
                         error = false
-                        StarStoreApi.user = name
-                        StarStoreApi.pass = edit
+
+                        StarStoreApi.user = loginName
+                        StarStoreApi.pass = loginPass
+
+                        save()
                     } catch (e: HttpException) {
                         error = true
                         errorMessage = when (e.code()) {
