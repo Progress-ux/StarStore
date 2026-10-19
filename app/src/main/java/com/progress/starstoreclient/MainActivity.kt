@@ -89,7 +89,7 @@ class MainActivity : ComponentActivity() {
                         ) {
                             User {
                                 StarStoreApi.user = ""
-                                save()
+                                save ()
                                 id = -1L
                             }
                         }
