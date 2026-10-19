@@ -103,7 +103,7 @@ fun User(
                 .align(Alignment.Center)
         ) {
             AsyncImage(
-                StarStoreApi.IMAGES + "vader.png",
+                StarStoreApi.IMAGES + StarStoreApi.user + ".png",
                 null,
                 modifier = Modifier
                     .clip(CircleShape)

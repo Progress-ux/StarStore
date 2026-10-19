@@ -1,5 +1,6 @@
 package com.progress.starstoreclient
 
+import android.graphics.drawable.Icon
 import android.icu.text.DecimalFormat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
@@ -12,8 +13,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -54,10 +58,22 @@ fun Main(
         }
     }
 
+    val faves by produceState(emptyList<Long>(), StarStoreApi.user) {
+        runCatching {
+            api.faves()
+        }.onSuccess { list ->
+            value = list
+            errorText = null
+        }.onFailure { exception ->
+            value = emptyList()
+            errorText = "${exception.javaClass.simpleName}: ${exception.localizedMessage}"
+        }
+    }
+
     val list by remember(tab) {
         derivedStateOf {
             models.filter {
-                it.ship == tab.toLong() || tab == 3
+                it.ship == tab.toLong() || tab == 3 || tab == 2 && it.id in faves
             }
         }
     }
@@ -118,6 +134,13 @@ fun Main(
                                     maxLines = 1
                                 )
                             }
+                            if (model.id in faves)
+                                Icon(
+                                    Icons.Default.FavoriteBorder,
+                                    null,
+                                    Modifier.padding(end = 4.dp)
+                                )
+
                             Text(
                                 text = money.format(model.price),
                                 fontWeight = FontWeight.SemiBold

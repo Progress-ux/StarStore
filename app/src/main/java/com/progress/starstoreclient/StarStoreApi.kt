@@ -38,6 +38,17 @@ interface StarStoreApi {
     @GET("money/{name}")
     suspend fun money(@Path("name") name: String = user): Long
 
+    @GET("faves/{name}")
+    suspend fun faves(@Path("name") name: String = user): List<Long>
+
+    @FormUrlEncoded
+    @POST("fav/{id}")
+    suspend fun fav(
+        @Path("id") id: Long,
+        @Field("name") name: String = user,
+        @Field("pass") password: String = pass
+    )
+
     companion object {
         private const val URL = "http://192.168.0.185:8080/"
         const val IMAGES = URL + "images/"

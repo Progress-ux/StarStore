@@ -2,6 +2,7 @@ package com.progress.starstoreclient
 
 import android.icu.text.DecimalFormat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +11,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -30,12 +36,15 @@ import com.progress.starstoreclient.ui.theme.droidBesh
 import com.progress.starstoreclient.ui.theme.starJedi
 import coil.compose.AsyncImage
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun Detail(
     id: Long
 ) {
+    val scope = rememberCoroutineScope()
+
     val api: StarStoreApi by lazy { StarStoreApi.getApi() }
     var errorText by rememberSaveable { mutableStateOf<String?>(null) }
     val model by produceState(StarStoreApi.Model()) {
@@ -46,6 +55,30 @@ fun Detail(
             errorText = null
         }.onFailure { exception ->
             errorText = "${exception.javaClass.simpleName}: ${exception.localizedMessage}"
+        }
+    }
+
+    val faves by produceState(emptyList<Long>()) {
+        runCatching {
+            api.faves()
+        }.onSuccess { list ->
+            value = list
+            errorText = null
+        }.onFailure { exception ->
+            errorText = "${exception.javaClass.simpleName}: ${exception.localizedMessage}"
+        }
+    }
+
+    var fav by remember(faves) { mutableStateOf(id in faves) }
+    val favIcon = remember(fav) {
+        if (fav) Icons.Default.Favorite else Icons.Default.FavoriteBorder
+    }
+    val favClick = {
+        scope.launch {
+            try {
+                api.fav(id)
+                fav = !fav
+            } catch (_: Exception) {}
         }
     }
 
@@ -123,6 +156,13 @@ fun Detail(
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Justify,
             )
+        }
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            FavButton(text = "fav", icon = favIcon) { favClick() }
+            FavButton(text = "buy", icon = Icons.Default.ShoppingCart) { }
         }
     }
 }
