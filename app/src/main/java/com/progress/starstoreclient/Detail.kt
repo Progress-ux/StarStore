@@ -19,6 +19,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -32,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.progress.starstoreclient.ui.theme.droidBesh
 import com.progress.starstoreclient.ui.theme.starJedi
 import coil.compose.AsyncImage
@@ -44,6 +46,7 @@ fun Detail(
     id: Long
 ) {
     val scope = rememberCoroutineScope()
+    var buy by remember { mutableStateOf(false) }
 
     val api: StarStoreApi by lazy { StarStoreApi.getApi() }
     var errorText by rememberSaveable { mutableStateOf<String?>(null) }
@@ -63,6 +66,17 @@ fun Detail(
             api.faves()
         }.onSuccess { list ->
             value = list
+            errorText = null
+        }.onFailure { exception ->
+            errorText = "${exception.javaClass.simpleName}: ${exception.localizedMessage}"
+        }
+    }
+
+    val cart by produceState(0L) {
+        runCatching {
+            api.cart(id)
+        }.onSuccess {
+            value = it
             errorText = null
         }.onFailure { exception ->
             errorText = "${exception.javaClass.simpleName}: ${exception.localizedMessage}"
@@ -89,6 +103,9 @@ fun Detail(
     }
     val droid by animateFloatAsState(targetValue = lang, label = "droid")
     val human by animateFloatAsState(targetValue = 1 - lang, label = "human")
+
+    var amount by remember(cart) { mutableLongStateOf(cart) }
+    val buyText = remember(amount) { if (amount == 0L) "Buy" else "$amount" }
 
     Column(Modifier.padding(8.dp)) {
         // Model image
@@ -162,7 +179,16 @@ fun Detail(
             modifier = Modifier.fillMaxWidth()
         ) {
             FavButton(text = "fav", icon = favIcon) { favClick() }
-            FavButton(text = "buy", icon = Icons.Default.ShoppingCart) { }
+            FavButton(text = buyText, icon = Icons.Default.ShoppingCart) { buy = true }
+        }
+    }
+    if (buy) Dialog({ buy = false }) {
+        AddToCart(amount) {
+            buy = false
+            if (it > 0 || amount > 0) scope.launch {
+                api.add(id, it)
+                amount = it
+            }
         }
     }
 }

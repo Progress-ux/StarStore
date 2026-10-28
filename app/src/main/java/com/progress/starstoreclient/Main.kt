@@ -1,6 +1,5 @@
 package com.progress.starstoreclient
 
-import android.graphics.drawable.Icon
 import android.icu.text.DecimalFormat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
@@ -11,10 +10,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -31,11 +30,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
 import com.progress.starstoreclient.ui.theme.droidBesh
-import com.progress.starstoreclient.ui.theme.starJedi
 import kotlinx.coroutines.delay
+import kotlin.collections.emptyList
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
@@ -54,6 +52,18 @@ fun Main(
             value = list
             errorText = null
         }.onFailure { exception ->
+            errorText = "${exception.javaClass.simpleName}: ${exception.localizedMessage}"
+        }
+    }
+
+    val cart by produceState(emptyList<Long>(), StarStoreApi.user) {
+        runCatching {
+            api.cartModels()
+        }.onSuccess { list ->
+            value = list
+            errorText = null
+        }.onFailure { exception ->
+            value = emptyList()
             errorText = "${exception.javaClass.simpleName}: ${exception.localizedMessage}"
         }
     }
@@ -134,7 +144,13 @@ fun Main(
                                     maxLines = 1
                                 )
                             }
-                            if (model.id in faves)
+                            if (model.id in cart)
+                                Icon(
+                                    Icons.Default.ShoppingCart,
+                                    null,
+                                    Modifier.padding(end = 4.dp)
+                                )
+                            else if (model.id in faves)
                                 Icon(
                                     Icons.Default.FavoriteBorder,
                                     null,

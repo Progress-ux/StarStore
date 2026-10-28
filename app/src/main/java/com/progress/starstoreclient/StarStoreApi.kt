@@ -41,6 +41,9 @@ interface StarStoreApi {
     @GET("faves/{name}")
     suspend fun faves(@Path("name") name: String = user): List<Long>
 
+    @GET("cart/{name}")
+    suspend fun cartModels(@Path("name") name: String = user): List<Long>
+
     @FormUrlEncoded
     @POST("fav/{id}")
     suspend fun fav(
@@ -49,8 +52,24 @@ interface StarStoreApi {
         @Field("pass") password: String = pass
     )
 
+    @GET("cart/{name}/{id}")
+    suspend fun cart(
+        @Path("id") id: Long,
+        @Path("name") name: String = user
+    ): Long
+
+    @FormUrlEncoded
+    @POST("cart/{id}")
+    suspend fun add(
+        @Path("id") id: Long,
+        @Field("amount") amount: Long,
+        @Field("name") name: String = user,
+        @Field("pass") password: String = pass,
+    )
+
+
     companion object {
-        private const val URL = "http://192.168.0.185:8080/"
+        private const val URL = "http://192.168.100.2:8080/"
         const val IMAGES = URL + "images/"
 
         var user by mutableStateOf("")
