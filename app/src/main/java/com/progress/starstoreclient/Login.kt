@@ -104,11 +104,6 @@ fun Login(
                         edit = ""
                     } catch (e: IOException) {
                         error = true
-                        errorMessage = "Network error. Please check your connection"
-                        name = ""
-                        edit = ""
-                    } catch (e: IOException) {
-                        error = true
                         errorMessage = e.localizedMessage ?: "An unknown error occurred"
                         name = ""
                         edit = ""

@@ -1,6 +1,7 @@
 package com.progress.starstoreclient
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import retrofit2.Retrofit
@@ -67,13 +68,24 @@ interface StarStoreApi {
         @Field("pass") password: String = pass,
     )
 
+    @GET("cost/{name}")
+    suspend fun cost(@Path("name") name: String = user): Long
+
+    @FormUrlEncoded
+    @POST("buy")
+    suspend fun buy(
+        @Field("name") name: String = user,
+        @Field("pass") password: String = pass
+    )
 
     companion object {
-        private const val URL = "http://192.168.100.2:8080/"
+        private const val URL = "http://192.168.100.3:8080/"
         const val IMAGES = URL + "images/"
 
         var user by mutableStateOf("")
         var pass by mutableStateOf("")
+
+        var changes by mutableIntStateOf(0)
 
         fun getApi(): StarStoreApi = Retrofit.Builder()
             .baseUrl(URL)

@@ -39,6 +39,7 @@ import com.progress.starstoreclient.ui.theme.starJedi
 import coil.compose.AsyncImage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
@@ -57,7 +58,14 @@ fun Detail(
             value = list
             errorText = null
         }.onFailure { exception ->
-            errorText = "${exception.javaClass.simpleName}: ${exception.localizedMessage}"
+            errorText = when (exception) {
+                is HttpException -> when (exception.code()) {
+                    401, 403 -> "Нет доступа"
+                    else -> "Ошибка сервера: ${exception.code()}"
+                }
+                is java.io.IOException -> "Нет соединения"
+                else -> "${exception.javaClass.simpleName}: ${exception.localizedMessage}"
+            }
         }
     }
 
@@ -68,7 +76,14 @@ fun Detail(
             value = list
             errorText = null
         }.onFailure { exception ->
-            errorText = "${exception.javaClass.simpleName}: ${exception.localizedMessage}"
+            errorText = when (exception) {
+                is HttpException -> when (exception.code()) {
+                    401, 403 -> "Нет доступа"
+                    else -> "Ошибка сервера: ${exception.code()}"
+                }
+                is java.io.IOException -> "Нет соединения"
+                else -> "${exception.javaClass.simpleName}: ${exception.localizedMessage}"
+            }
         }
     }
 
@@ -79,7 +94,14 @@ fun Detail(
             value = it
             errorText = null
         }.onFailure { exception ->
-            errorText = "${exception.javaClass.simpleName}: ${exception.localizedMessage}"
+            errorText = when (exception) {
+                is HttpException -> when (exception.code()) {
+                    401, 403 -> "Нет доступа"
+                    else -> "Ошибка сервера: ${exception.code()}"
+                }
+                is java.io.IOException -> "Нет соединения"
+                else -> "${exception.javaClass.simpleName}: ${exception.localizedMessage}"
+            }
         }
     }
 
@@ -187,6 +209,7 @@ fun Detail(
             buy = false
             if (it > 0 || amount > 0) scope.launch {
                 api.add(id, it)
+                StarStoreApi.changes++
                 amount = it
             }
         }

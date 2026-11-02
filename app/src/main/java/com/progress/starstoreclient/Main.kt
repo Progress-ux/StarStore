@@ -56,7 +56,7 @@ fun Main(
         }
     }
 
-    val cart by produceState(emptyList<Long>(), StarStoreApi.user) {
+    val cart by produceState(emptyList<Long>(), StarStoreApi.user, StarStoreApi.changes) {
         runCatching {
             api.cartModels()
         }.onSuccess { list ->

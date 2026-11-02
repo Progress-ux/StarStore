@@ -87,11 +87,16 @@ class MainActivity : ComponentActivity() {
                             enter = slideInVertically { it },
                             exit = slideOutVertically { it }
                         ) {
-                            User {
-                                StarStoreApi.user = ""
-                                save ()
-                                id = -1L
-                            }
+                            User(
+                                onLogout = {
+                                    StarStoreApi.user = ""
+                                    save ()
+                                    id = -1L
+                                },
+                                afterBuy = {
+                                    id = -1L
+                                }
+                            )
                         }
                     }
                 }
