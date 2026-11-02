@@ -1,6 +1,7 @@
 package com.progress.starstoreclient
 
 import android.R.attr.name
+import android.media.MediaPlayer
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -21,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -31,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -50,6 +53,17 @@ fun User(
 ) {
     val api: StarStoreApi by lazy { StarStoreApi.getApi() }
     val scope = rememberCoroutineScope()
+
+    val context = LocalContext.current
+    val soundClick = remember { MediaPlayer.create(context, R.raw.stryb_a38293) }
+    val soundLogout = remember { MediaPlayer.create(context, R.raw.stryb_a38604) }
+
+    DisposableEffect(context) {
+        onDispose {
+            soundClick.release()
+            soundLogout.release()
+        }
+    }
 
     var menu by remember { mutableStateOf(false) }
     var buy by remember { mutableStateOf(false) }
@@ -141,7 +155,12 @@ fun User(
             )
 
             DropdownMenu(menu, { menu = false } ) {
-                IconButton(onLogout) {
+                IconButton(
+                    {
+                        soundLogout.start()
+                        onLogout()
+                    }
+                ) {
                     Icon(Icons.AutoMirrored.Outlined.ExitToApp, "Exit")
                 }
             }
@@ -154,6 +173,7 @@ fun User(
                 scope.launch {
                     try {
                         api.buy()
+                        soundClick.start()
                         StarStoreApi.changes++
                         afterBuy()
                     } catch (e: HttpException) {

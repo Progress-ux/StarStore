@@ -1,5 +1,6 @@
 package com.progress.starstoreclient
 
+import android.media.MediaPlayer
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -23,6 +24,9 @@ import androidx.compose.ui.Modifier
 import com.progress.starstoreclient.ui.theme.StarStoreClientTheme
 import androidx.core.content.edit
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -1,6 +1,7 @@
 package com.progress.starstoreclient
 
 import android.icu.text.DecimalFormat
+import android.media.MediaPlayer
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,6 +19,7 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -29,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -48,6 +51,15 @@ fun Detail(
 ) {
     val scope = rememberCoroutineScope()
     var buy by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+    val soundClick = remember { MediaPlayer.create(context, R.raw.stryb_a37855) }
+
+    DisposableEffect(context) {
+        onDispose {
+            soundClick.release()
+        }
+    }
 
     val api: StarStoreApi by lazy { StarStoreApi.getApi() }
     var errorText by rememberSaveable { mutableStateOf<String?>(null) }
@@ -200,7 +212,10 @@ fun Detail(
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth()
         ) {
-            FavButton(text = "fav", icon = favIcon) { favClick() }
+            FavButton(text = "fav", icon = favIcon) {
+                favClick()
+                soundClick.start()
+            }
             FavButton(text = buyText, icon = Icons.Default.ShoppingCart) { buy = true }
         }
     }

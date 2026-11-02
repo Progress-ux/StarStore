@@ -1,17 +1,16 @@
 package com.progress.starstoreclient
 
+import android.media.MediaPlayer
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Minimize
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Icon
@@ -20,14 +19,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.progress.starstoreclient.ui.theme.starJedi
 
@@ -38,6 +38,20 @@ fun AddToCart(value: Long, add: (Long) -> Unit) = OutlinedCard(
 ) {
     var amount by rememberSaveable {
         mutableLongStateOf(if (value > 0L) value else 1L)
+    }
+
+    val context = LocalContext.current
+    val soundStart = remember { MediaPlayer.create(context, R.raw.stryb_a27688) }
+    val soundClick = remember { MediaPlayer.create(context, R.raw.stryb_a38293) }
+    val soundPress = remember { MediaPlayer.create(context, R.raw.stryb_a38306) }
+
+    DisposableEffect(context) {
+        soundStart.start()
+        onDispose {
+            soundStart.release()
+            soundClick.release()
+            soundPress.release()
+        }
     }
 
     Row(
@@ -72,7 +86,10 @@ fun AddToCart(value: Long, add: (Long) -> Unit) = OutlinedCard(
         }
 
         IconButton(
-            onClick = { add(amount) },
+            onClick = {
+                add(amount)
+                soundStart.start()
+            }
         ) {
             Icon(
                 Icons.Default.ShoppingCart,

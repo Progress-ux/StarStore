@@ -1,5 +1,7 @@
 package com.progress.starstoreclient
 
+import android.media.MediaPlayer
+import android.media.SoundPool
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -14,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,6 +24,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -41,6 +45,21 @@ fun Login(
 
     var error by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
+
+    val context = LocalContext.current.applicationContext
+    val soundPool = remember {
+        SoundPool.Builder()
+            .setMaxStreams(2)
+            .build()
+    }
+    val soundErrorLogin = remember { soundPool.load(context, R.raw.stryb_a38306, 1) }
+    val soundSuccessLogin = remember { soundPool.load(context, R.raw.stryb_a38293, 1) }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            soundPool.release()
+        }
+    }
 
     var name by remember { mutableStateOf("") }
 
@@ -94,6 +113,8 @@ fun Login(
                         StarStoreApi.pass = loginPass
 
                         save()
+
+                        soundPool.play(soundSuccessLogin, 1f, 1f, 1, 0, 1f)
                     } catch (e: HttpException) {
                         error = true
                         errorMessage = when (e.code()) {
@@ -102,11 +123,13 @@ fun Login(
                         }
                         name = ""
                         edit = ""
+                        soundPool.play(soundErrorLogin, 1f, 1f, 1, 0, 1f)
                     } catch (e: IOException) {
                         error = true
                         errorMessage = e.localizedMessage ?: "An unknown error occurred"
                         name = ""
                         edit = ""
+                        soundPool.play(soundErrorLogin, 1f, 1f, 1, 0, 1f)
                     }
                 }
             }) {
