@@ -1,6 +1,5 @@
 package com.progress.starstoreclient
 
-import android.media.MediaPlayer
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -10,7 +9,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -24,9 +22,10 @@ import androidx.compose.ui.Modifier
 import com.progress.starstoreclient.ui.theme.StarStoreClientTheme
 import androidx.core.content.edit
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.runtime.mutableFloatStateOf
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,6 +48,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             var id by rememberSaveable { mutableLongStateOf(-1L) }
             var tab by rememberSaveable { mutableIntStateOf(3) }
+            var drag by rememberSaveable { mutableFloatStateOf(0f) }
 
             BackHandler(id >= 0) { id = -1 }
 
@@ -62,7 +62,21 @@ class MainActivity : ComponentActivity() {
 
                         AnimatedVisibility(
                             id < 0,
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier
+                                .weight(1f)
+                                .draggable(rememberDraggableState {
+                                    drag += it
+                                    val threshold = 250f
+                                    if (drag > threshold) {
+                                        if (tab > 0) tab--
+                                        drag = 0f
+                                    }
+                                    else if (drag < -threshold) {
+                                        if (tab < 3) tab++
+                                        drag = 0f
+                                    }
+                                }, Orientation.Horizontal
+                            ),
                             enter = fadeIn(),
                             exit = fadeOut()
                         ) {
@@ -74,7 +88,9 @@ class MainActivity : ComponentActivity() {
                             enter = fadeIn(),
                             exit = fadeOut()
                         ) {
-                            Detail(id)
+                            DetailPager(id, tab) {
+                                Detail(it)
+                            }
                         }
 
                         AnimatedVisibility(
